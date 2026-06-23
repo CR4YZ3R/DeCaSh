@@ -2,12 +2,14 @@
 **/artifacts/
 **/artifacts/**
 
-# Remix .* folders
+
+# Remix IDE settings
+.prettierrc.json
+remix.bonfig.json
+
+# Remix .* state folders
 .deps/
 .states/
-
-# Remix' .prettierrc.json
-.prettierrc.json
 
 # Remix plugin state folders
 deps/
