@@ -2,6 +2,13 @@
 **/artifacts/
 **/artifacts/**
 
+# Remix .* folders
+.deps/
+.states/
+
+# Remix' .prettierrc.json
+.prettierrc.json
+
 # Remix plugin state folders
 deps/
 states/
