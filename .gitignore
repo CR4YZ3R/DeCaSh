@@ -1,0 +1,24 @@
+# Remix compiler artifacts
+**/artifacts/
+**/artifacts/**
+
+
+# Remix IDE settings
+.prettierrc.json
+remix.config.json
+
+# Remix .* state folders
+.deps/
+.states/
+
+# Remix plugin state folders
+deps/
+states/
+
+# Debug info
+*.dbg.json
+*.tsbuildinfo
+
+# Optional
+.env
+.env.local
