@@ -83,7 +83,6 @@ contract RentalCar {
   function request_refund() public {
     uint _refund_amount = refunds[msg.sender];
     refunds[msg.sender] = 0;
-    uint _test = address(this).balance;
     (bool send_success, ) = msg.sender.call{value: _refund_amount}("");
     require(send_success, "Refunding failed");
   }
