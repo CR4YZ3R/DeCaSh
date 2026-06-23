@@ -5,7 +5,7 @@
 
 # Remix IDE settings
 .prettierrc.json
-remix.bonfig.json
+remix.config.json
 
 # Remix .* state folders
 .deps/

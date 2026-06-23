@@ -2,7 +2,7 @@
 pragma solidity >=0.6.12 <0.9.0;
 
 contract RentalCar {
-  address public rented_by = address(0);
+  address public booked_by = address(0);
   uint public time_of_booking = 0;
   uint public booked_hours = 0;
   mapping(address => uint) public refunds; 
@@ -43,8 +43,8 @@ contract RentalCar {
     _;
   }
 
-  modifier currently_rented_by_sender() {
-    require(msg.sender == rented_by, "Car not booked by you");
+  modifier currently_booked_by_sender() {
+    require(msg.sender == booked_by, "Car not booked by you");
     _;
   }
 
@@ -71,10 +71,10 @@ contract RentalCar {
     // As we do not allow for booking of smaller time intervals, we just refund the rest later.
     uint _refunded_amount = msg.value - _booking_time*COST_PER_HOUR;
     refunds[msg.sender] += _refunded_amount;
-    rented_by = msg.sender;
+    booked_by = msg.sender;
   }
 
-  function return_car() public is_booked currently_rented_by_sender {
+  function return_car() public is_booked currently_booked_by_sender {
     uint _returned_funds = get_remaining_hours() * COST_PER_HOUR;
     refunds[msg.sender] += _returned_funds;
     free_up_car();
@@ -83,6 +83,7 @@ contract RentalCar {
   function request_refund() public {
     uint _refund_amount = refunds[msg.sender];
     refunds[msg.sender] = 0;
+    uint _test = address(this).balance;
     (bool send_success, ) = msg.sender.call{value: _refund_amount}("");
     require(send_success, "Refunding failed");
   }
