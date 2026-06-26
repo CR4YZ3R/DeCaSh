@@ -1,26 +1,26 @@
-const crypto = require("crypto");
-const fs = require("fs");
-const path = require("path");
-const { buildPoseidon } = require("circomlibjs");
-const { ethers } = require("ethers");
-const { groth16 } = require("snarkjs");
+import { randomBytes } from "crypto";
+import { writeFileSync } from "fs";
+import { join } from "path";
+import { buildPoseidon } from "circomlibjs";
+import { ethers } from "ethers";
+import { groth16 } from "snarkjs";
+import RENTAL_CAR_ARTIFACT
+    from "../artifacts/contracts/RentalCar.sol/RentalCar.json"
+    with { type: "json" };
+import { RENTAL_CAR_ADDRESS } from "./config.js";
 
-// --- Configuration ---
 const RPC_URL = "http://localhost:8545";
-const CONTRACT_ADDRESS = "0xDeployedRentalCarAddress";
-const RENTER_PRIVATE_KEY = "0xYourRenterPrivateKey";
+const CONTRACT_ADDRESS = RENTAL_CAR_ADDRESS;
+const RENTER_PRIVATE_KEY = "0x689af8efa8c651a91ad287602527f3af2fe9f6501a7ac4b061667b5a93e037fd";
 const HOURS_TO_RENT = 2;
 
-const WASM_PATH = path.join(__dirname, "../circuits/ProofValidKey_js/ProofValidKey.wasm");
-const ZKEY_PATH = path.join(__dirname, "../circuits/rental.zkey");
+const WASM_PATH = join(import.meta.dirname, "../circuits/ProofValidKey_js/ProofValidKey.wasm");
+const ZKEY_PATH = join(import.meta.dirname, "../circuits/rental.zkey");
 
-const RENTAL_CAR_ABI = [
-  "function rentCar(uint8 hoursToRent, uint256 commitment) external payable",
-];
+const RENTAL_CAR_ABI = RENTAL_CAR_ARTIFACT.abi;
 
 async function main() {
-  // 1. Generate secret and compute its Poseidon commitment
-  const secretHex = crypto.randomBytes(32).toString("hex");
+  const secretHex = randomBytes(32).toString("hex");
   const secret = BigInt("0x" + secretHex);
 
   const poseidon = await buildPoseidon();
@@ -29,7 +29,6 @@ async function main() {
   console.log("Secret:", secretHex);
   console.log("Commitment:", commitment.toString());
 
-  // 2. Store commitment on-chain (renter books the car)
   const provider = new ethers.JsonRpcProvider(RPC_URL);
   const signer = new ethers.Wallet(RENTER_PRIVATE_KEY, provider);
   const contract = new ethers.Contract(CONTRACT_ADDRESS, RENTAL_CAR_ABI, signer);
@@ -38,18 +37,16 @@ async function main() {
   await tx.wait();
   console.log("Booking stored on-chain. Tx:", tx.hash);
 
-  // 3. Generate ZK proof that we know the secret behind the commitment
   const { proof, publicSignals } = await groth16.fullProve(
     { secret: secret.toString(), commitment: commitment.toString() },
     WASM_PATH,
     ZKEY_PATH
   );
 
-  // 4. Parse proof into the components the contract expects: pA, pB, pC
   const calldata = await groth16.exportSolidityCallData(proof, publicSignals);
   const [pA, pB, pC] = JSON.parse("[" + calldata + "]");
 
-  fs.writeFileSync(path.join(__dirname, "proof.json"), JSON.stringify({ pA, pB, pC }));
+  writeFileSync(join(import.meta.dirname, "proof.json"), JSON.stringify({ pA, pB, pC }));
   console.log("Proof saved to scripts/proof.json");
 }
 

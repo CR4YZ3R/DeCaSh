@@ -1,19 +1,20 @@
-const fs = require("fs");
-const path = require("path");
-const { ethers } = require("ethers");
+import { readFileSync } from "fs";
+import { join } from "path";
+import { ethers } from "ethers";
+import RENTAL_CAR_ARTIFACT
+    from "../artifacts/contracts/RentalCar.sol/RentalCar.json"
+    with { type: "json" };
+import { RENTAL_CAR_ADDRESS } from "./config.js";
 
-// --- Configuration ---
 const RPC_URL = "http://localhost:8545";
-const CONTRACT_ADDRESS = "0xDeployedRentalCarAddress";
-const CAR_PRIVATE_KEY = "0xYourCarPrivateKey";
+const CONTRACT_ADDRESS = RENTAL_CAR_ADDRESS;
+const CAR_PRIVATE_KEY = "0xde9be858da4a475276426320d5e9262ecfc3ba460bfac56360bfa6c4c28b4ee0";
 
-const RENTAL_CAR_ABI = [
-  "function verifyAccess(uint[2] _pA, uint[2][2] _pB, uint[2] _pC) external view returns (bool)",
-];
+const RENTAL_CAR_ABI = RENTAL_CAR_ARTIFACT.abi;
 
 async function main() {
   const { pA, pB, pC } = JSON.parse(
-    fs.readFileSync(path.join(__dirname, "proof.json"), "utf8")
+    readFileSync(join(import.meta.dirname, "proof.json"), "utf8")
   );
 
   const provider = new ethers.JsonRpcProvider(RPC_URL);
