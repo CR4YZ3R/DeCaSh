@@ -108,9 +108,9 @@ contract RentalCar {
         uint256 _refundAmount = refunds[msg.sender];
         require(_refundAmount > 0, "No refund available");
 
+        refunds[msg.sender] = 0;
         (bool _success, ) = msg.sender.call{value: _refundAmount}("");
         require(_success, "Refund failed");
-        refunds[msg.sender] = 0; // Only deduct refund if the transaction was successful
     }
 
     // Checks if a booking is currently active.
