@@ -44,12 +44,30 @@ contract RentalCar {
     function verifyAccess(
         uint[2] calldata _pA,
         uint[2][2] calldata _pB,
-        uint[2] calldata _pC
+        uint[2] calldata _pC,
+        bytes calldata signature
     ) external view returns (bool) {
         require(bookingActive(), "Rental expired");
 
-        uint[1] memory pubSignals = [bookingCommitment];
+        // Recover who signed the proof and confirm it was the registered renter
+        bytes32 proofHash = keccak256(abi.encode(_pA, _pB, _pC));
+        bytes32 ethHash = keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", proofHash));
+        require(_recover(ethHash, signature) == renter, "Proof not signed by renter");
 
+        uint[1] memory pubSignals = [bookingCommitment];
         return verifier.verifyProof(_pA, _pB, _pC, pubSignals);
+    }
+
+    function _recover(bytes32 hash, bytes calldata sig) internal pure returns (address) {
+        require(sig.length == 65, "Invalid signature length");
+        bytes32 r;
+        bytes32 s;
+        uint8 v;
+        assembly {
+            r := calldataload(sig.offset)
+            s := calldataload(add(sig.offset, 32))
+            v := byte(0, calldataload(add(sig.offset, 64)))
+        }
+        return ecrecover(hash, v, r, s);
     }
 }

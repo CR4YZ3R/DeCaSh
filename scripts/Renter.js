@@ -46,7 +46,16 @@ async function main() {
   const calldata = await groth16.exportSolidityCallData(proof, publicSignals);
   const [pA, pB, pC] = JSON.parse("[" + calldata + "]");
 
-  writeFileSync(join(import.meta.dirname, "proof.json"), JSON.stringify({ pA, pB, pC }));
+  const encoded = ethers.AbiCoder.defaultAbiCoder().encode(
+    ["uint256[2]", "uint256[2][2]", "uint256[2]"],
+    [pA, pB, pC]
+  );
+  const proofHash = ethers.keccak256(encoded);
+  const signature = await signer.signMessage(ethers.getBytes(proofHash));
+  console.log("Proof hash:", proofHash);
+  console.log("Proof signature:", signature);
+
+  writeFileSync(join(import.meta.dirname, "proof.json"), JSON.stringify({ pA, pB, pC, signature }));
   console.log("Proof saved to scripts/proof.json");
 }
 

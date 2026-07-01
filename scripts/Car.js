@@ -13,7 +13,7 @@ const CAR_PRIVATE_KEY = "0xde9be858da4a475276426320d5e9262ecfc3ba460bfac56360bfa
 const RENTAL_CAR_ABI = RENTAL_CAR_ARTIFACT.abi;
 
 async function main() {
-  const { pA, pB, pC } = JSON.parse(
+  const { pA, pB, pC, signature } = JSON.parse(
     readFileSync(join(import.meta.dirname, "proof.json"), "utf8")
   );
 
@@ -21,7 +21,7 @@ async function main() {
   const signer = new ethers.Wallet(CAR_PRIVATE_KEY, provider);
   const contract = new ethers.Contract(CONTRACT_ADDRESS, RENTAL_CAR_ABI, signer);
 
-  const hasAccess = await contract.verifyAccess(pA, pB, pC);
+  const hasAccess = await contract.verifyAccess(pA, pB, pC, signature);
   console.log("Access granted:", hasAccess);
 }
 
