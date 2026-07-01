@@ -20,8 +20,6 @@ contract RentalCar {
     uint256 public endTime;
     uint256 public costPerHour = 20 gwei;
 
-    mapping(address => uint256) public refunds;
-
     uint256 public bookingCommitment;
 
     IVerifier public verifier;
@@ -36,11 +34,9 @@ contract RentalCar {
     function payoutOwner() external {
         require(msg.sender == owner, "Only owner can withdraw");
 
-        uint256 _lockedFunds = 0;
-        for (uint256 i = 0; i < 10; i++) {
-            _lockedFunds += refunds[address(uint160(i))];
-        }
-        _lockedFunds += calculateRemainingHours() * costPerHour;
+        // Renter must be allowed to get their remaining time refunded, if they return the car early.
+        // Thus we forbid the owner from withdrawing those funds. 
+        uint256 _lockedFunds = calculateRemainingHours() * costPerHour;
 
         uint256 _balance = address(this).balance;
         uint256 _safelyWithdrawable = _balance > _lockedFunds ? _balance - _lockedFunds : 0;
@@ -62,14 +58,15 @@ contract RentalCar {
         require(hoursToRent > 0, "Rental duration must be at least one hour");
         uint256 _rentalCost = hoursToRent * costPerHour;
         require(msg.value >= _rentalCost, "Insufficient payment");
-        refunds[msg.sender] += msg.value - _rentalCost;
-
+        
         renter = msg.sender;
-
         startTime = block.timestamp;
         endTime = block.timestamp + hoursToRent * 1 hours;
-
         bookingCommitment = commitment;
+        
+        // Return the excess funds to the renter if they overpaid
+        (bool _success, ) = msg.sender.call{value: msg.value - _rentalCost}("");
+        require(_success, "Failed to refund excess payment");
     }
 
     function roundDownToHour(uint256 timestamp) private pure returns (uint256) {
@@ -94,23 +91,15 @@ contract RentalCar {
         require(msg.sender == renter, "Only renter can return the car");
         require(bookingActive(), "Rental period has ended");
         uint256 _remainingHours = calculateRemainingHours();
-        uint256 _remainingFundsForCurrentBooking = _remainingHours * costPerHour; // How high the refund is for the renter
-
+        uint256 _remainingFundsForCurrentBooking = _remainingHours * costPerHour;
+        
+        // How high the refund is for the renter
         uint256 _refundAmount = _remainingFundsForCurrentBooking;
-        refunds[msg.sender] += _refundAmount;
+        (bool _success, ) = msg.sender.call{value: _refundAmount}("");
+        require(_success, "Refund failed");
 
         uint256 _currentTime = block.timestamp;
         endTime = _currentTime; // Update end time to current time
-    }
-
-    // Allows someone to request their refunded funds (as long as they have any)
-    function requestRefund() external {
-        uint256 _refundAmount = refunds[msg.sender];
-        require(_refundAmount > 0, "No refund available");
-
-        refunds[msg.sender] = 0;
-        (bool _success, ) = msg.sender.call{value: _refundAmount}("");
-        require(_success, "Refund failed");
     }
 
     // Checks if a booking is currently active.
