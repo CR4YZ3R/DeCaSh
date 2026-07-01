@@ -1,0 +1,33 @@
+{
+  "name": "decash",
+  "version": "1.0.0",
+  "description": "Decentralized Car sharing",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CR4YZ3R/DeCaSh.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/CR4YZ3R/DeCaSh/issues"
+  },
+  "homepage": "https://github.com/CR4YZ3R/DeCaSh#readme",
+  "dependencies": {
+    "circomlib": "^2.0.5",
+    "circomlibjs": "^0.1.7",
+    "ethers": "^6.17.0",
+    "snarkjs": "^0.7.6",
+    "solc": "^0.5.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.0",
+    "hardhat": "^3.9.0",
+    "typescript": "~6.0.3"
+  }
+}
