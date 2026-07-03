@@ -64,6 +64,7 @@ Deploys `Groth16Verifier` and `RentalCar`, then writes `scripts/config.js` with 
 ```bash
 node scripts/Renter.js
 ```
+**Note:** Previous versions of this script had issues with exiting after execution. This should be fixed. However, should this still occur despite the fix, just **press the `[CTRL]+[C]` keys after the `proof.json` is saved** to force the script to finish execution.
 
 - Generates a random 256-bit secret
 - Computes `commitment = Poseidon(secret)`
