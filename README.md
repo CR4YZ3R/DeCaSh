@@ -77,7 +77,7 @@ node scripts/Renter.js
 node scripts/Car.js
 ```
 
-Reads `scripts/proof.json` and calls `verifyAccess(pA, pB, pC)` on the contract. The contract checks the booking is still within its time window and verifies the proof against the stored commitment and the validity of the signature.
+Reads `scripts/proof.json` and calls `verifyAccess(pA, pB, pC, signature)` on the contract. The contract checks the booking is still within its time window and verifies the proof against the stored commitment and the validity of the signature.
 
 ## Key Design Decisions
 
