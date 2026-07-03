@@ -82,7 +82,7 @@ Reads `scripts/proof.json` and calls `verifyAccess(pA, pB, pC, signature)` on th
 
 ## Key Design Decisions
 
-- **Secret stays with the renter.** The owner never sees it. The commitment (a Poseidon hash) is all that goes on-chain.
+- **Secret stays with the renter.** The owner never sees it. The commitment (a Poseidon hash) is all that goes on-chain. This also ensures, that the renter can choose a secret instead of the owner choosing a (potentially compromised) secret. Thus little trust is required.
 - **Verifier is deployed once.** `Groth16Verifier` is circuit-specific but does not change per rental — only the commitment changes.
 - **Time-bounded access.** `verifyAccess` rejects proofs outside the booked `[startTime, endTime]` window.
 - **Early returns.** Renters can return the car early (via `returnCarEarly`) and get some of their remaining time refunded (but they will still pay the remaining hour). This incentivises customers to return the car earlier, if they do not require the full booking time.
