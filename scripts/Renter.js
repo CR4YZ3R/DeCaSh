@@ -59,4 +59,13 @@ async function main() {
   console.log("Proof saved to scripts/proof.json");
 }
 
-main().catch(console.error);
+main()
+  .then(() => {
+    // Exit the process explicitly to avoid hanging due to open handles and worker threads.
+    // I'm honestly not sure why this is necessary (especially as this is the only script that has this issue), but it seems to be a common workaround in Node.js scripts that use async/await.
+    process.exit(0);
+  })
+  .catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });
