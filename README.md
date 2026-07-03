@@ -82,6 +82,29 @@ node scripts/Car.js
 
 Reads `scripts/proof.json` and calls `verifyAccess(pA, pB, pC, signature)` on the contract. The contract checks the booking is still within its time window and verifies the proof against the stored commitment and the validity of the signature.
 
+## Manual verification
+If you encounter issues during the verification of the ZK-proofs, you can use the examples provided in the `samples` directory in the following way to verify the some exemplary ZK-proofs:
+```bash
+# This you would only need to do if you were not having access to the witness.
+npx snarkjs wtns calculate \
+             circuits/ProofValidKey_js/ProofValidKey.wasm \
+             samples/input_1.json \
+             samples/witness_1.wtns
+
+# This you would only need to do if you would not already have access to the public signals and the proof. 
+npx snarkjs groth16 prove \
+      circuits/rental.zkey \
+      samples/witness_1.wtns \
+      samples/proof_1.json \
+      samples/public_1.json
+
+# This actually verifies that the public signals along with the proof leads to a valid proof.
+npx snarkjs groth16 verify \
+      circuits/verification_key.json \
+      samples/public_1.json \
+      samples/proof_1.json
+```
+
 ## Key Design Decisions
 
 - **Secret stays with the renter.** The owner never sees it. The commitment (a Poseidon hash) is all that goes on-chain. This also ensures, that the renter can choose a secret instead of the owner choosing a (potentially compromised) secret. Thus little trust is required.
