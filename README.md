@@ -51,6 +51,8 @@ npx hardhat compile
 npx hardhat node
 ```
 
+**Note:** You need to **leave this running**, as it runs a local simulation of the block-chain. Let this command continue to run in the background and open a new terminal/shell if you have to. You can stop this command when you have executed all the steps below.
+
 ### 2. Deploy contracts (Owner)
 
 ```bash
