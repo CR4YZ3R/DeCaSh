@@ -33,7 +33,7 @@ async function main() {
   const signer = new ethers.Wallet(RENTER_PRIVATE_KEY, provider);
   const contract = new ethers.Contract(CONTRACT_ADDRESS, RENTAL_CAR_ABI, signer);
 
-  const tx = await contract.rentCar(HOURS_TO_RENT, commitment);
+  const tx = await contract.rentCar(HOURS_TO_RENT, commitment, {value: ethers.parseEther("1")});
   await tx.wait();
   console.log("Booking stored on-chain. Tx:", tx.hash);
 
